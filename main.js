@@ -3,7 +3,7 @@ const tokent =
   "perm:0JXQs9C+0YBf0KjQsNGA0YvQv9C40L0=.NDgtMTE=.5ImoKg9xf2bIqnRsbRMnhoG2SFCMxY";
 //query= "?query=for:%20me%20%23Unresolved%20&fields=id,summary,title,created,resolved"
 const pagination  ="&$skip=0&$top=400"
-const query = "?query=project:GreenWay%20%23Unresolved%20&for:%20all&fields=id,summary,title,created,project(name),resolved";
+const query = `?query=project:GreenWay%20%23Unresolved%20&for:%20all&fields=id,summary,title,created,project(name),resolved`;
 const url = api + "/issues" + query +pagination
   fetch(url, {
     headers: {
@@ -15,10 +15,14 @@ const url = api + "/issues" + query +pagination
     .then((response) => response.json())
     .then((data) => {
       // Process the data and draw the chart
-      drawGanttChart(data);
+      const twoWeeks = Date.now() - 1209600000;
+      let filtredTasks = data.filter((task) => {
+        return task.created >= twoWeeks
+      })
+
+      drawGanttChart(filtredTasks);
     })
     .catch((error) => console.error("Error:", error));
-
 
 function drawGanttChart(data) {
   // Load the Google Charts library
