@@ -16,18 +16,14 @@ const url = api + "/issues" + query +pagination
   .then((data) => {
     // Process the data and draw the chart
     const twoWeeks = Date.now() - 1209600000;
-    console.log(Date.now() - 1209600000)
     let filtredTasks = data.filter((task) => {
       return task.created >= twoWeeks
     })
 
-    console.log(filtredTasks)
-
-    filtredTasks = filtredTasks.map((task) => {
-      const date = `${new Date(task.created).getFullYear()}.${new Date(task.created).getMonth()}.${new Date(task.created).getDay()} ${new Date(task.created).getHours()}:${new Date(task.created).getMinutes()}:${new Date(task.created).getSeconds()}`
+    filtredTasks = filtredTasks.map((task) => { 
       return {
         id: task.id,
-        start_date: date,
+        start_date: formatDate(task.created),
         text: task.summary,
         project: {
           $type: task.project.$type,
@@ -38,18 +34,12 @@ const url = api + "/issues" + query +pagination
       }
     })
 
-    console.log(filtredTasks)
-
     gantt.config.date_format = "%Y.%n.%j %H:%i:%s";
     gantt.init("gantt", new Date(2023, 7, 1), new Date(2023, 9, 31));
     gantt.parse({"data": filtredTasks})
   })
   .catch((error) => console.error("Error:", error));
-  const date = new Date(1696670354613)
-  const taskDate = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
-  console.log(taskDate)
 
   function formatDate(date) {
-    return `${new Date(date).getFullYear()}.${new Date(date).getMonth()}.${new Date(date).getDay()} 
-    ${new Date(date).getHours()}:${new Date(date).getMinutes()}:${new Date(date).getSeconds()}` 
+    return `${new Date(date).getFullYear()}.${new Date(date).getMonth() + 1}.${new Date(date).getDate()} ${new Date(date).getHours()}:${new Date(date).getMinutes()}:${new Date(date).getSeconds()}`
   };
