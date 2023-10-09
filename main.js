@@ -35,7 +35,7 @@ const url = api + "/issues" + query +pagination
     })
 
     gantt.config.date_format = "%Y.%n.%j %H:%i:%s";
-    gantt.init("gantt", new Date(2023, 7, 1), new Date(2023, 9, 31));
+    gantt.init("gantt", new Date(2023, 8, 1), new Date(2023, 9, 31));
     gantt.parse({"data": filtredTasks})
   })
   .catch((error) => console.error("Error:", error));
