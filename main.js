@@ -1,6 +1,6 @@
 const api = "https://jb-yt.greenwaystart.com/api";
 const tokent =
-  "perm:0JXQs9C+0YBf0KjQsNGA0YvQv9C40L0=.NDgtMTE=.5ImoKg9xf2bIqnRsbRMnhoG2SFCMxY";
+  "perm:0JXQs9C+0YBf0KjQsNGA0YvQv9C40L0=.NDgtMTI=.6aZq26jpCTzmNyqZbvNSEq2dihcgwS";
 //query= "?query=for:%20me%20%23Unresolved%20&fields=id,summary,title,created,resolved"
 const pagination  ="&$skip=0&$top=400"
 const query = `?query=project:GreenWay%20%23Unresolved%20&for:%20all&fields=id,summary,title,created,project(name),resolved`;
@@ -12,71 +12,44 @@ const url = api + "/issues" + query +pagination
       "Content-Type": "application/json",
     },
   })
-    .then((response) => response.json())
-    .then((data) => {
-      // Process the data and draw the chart
-      const twoWeeks = Date.now() - 1209600000;
-      let filtredTasks = data.filter((task) => {
-        return task.created >= twoWeeks
-      })
-
-      drawGanttChart(filtredTasks);
+  .then((response) => response.json())
+  .then((data) => {
+    // Process the data and draw the chart
+    const twoWeeks = Date.now() - 1209600000;
+    console.log(Date.now() - 1209600000)
+    let filtredTasks = data.filter((task) => {
+      return task.created >= twoWeeks
     })
-    .catch((error) => console.error("Error:", error));
 
-function drawGanttChart(data) {
-  // Load the Google Charts library
-  google.charts.load("current", { packages: ["gantt"],  language: "ru",});
-  google.charts.setOnLoadCallback(drawChart);
+    console.log(filtredTasks)
 
-  function drawChart() {
-    // Create a new Gantt chart instance
-    const chart = new google.visualization.Gantt(
-      document.getElementById("gantt")
-    );
+    filtredTasks = filtredTasks.map((task) => {
+      const date = `${new Date(task.created).getFullYear()}.${new Date(task.created).getMonth()}.${new Date(task.created).getDay()} ${new Date(task.created).getHours()}:${new Date(task.created).getMinutes()}:${new Date(task.created).getSeconds()}`
+      return {
+        id: task.id,
+        start_date: date,
+        text: task.summary,
+        project: {
+          $type: task.project.$type,
+          name: task.project.name,
+        },
+        resolved: task.resolved,
+        $type: task.$type,
+      }
+    })
 
-    // Define the columns for the chart
-    const dataTable = new google.visualization.DataTable();
-    dataTable.addColumn("string", "Task ID");
-    dataTable.addColumn("string", "Task Name");
-    dataTable.addColumn("date", "Start Date");
-    dataTable.addColumn("date", "End Date");
-    dataTable.addColumn("number", "Duration");
-    dataTable.addColumn("number", "Percent Complete");
-    dataTable.addColumn("string", "Dependencies");
+    console.log(filtredTasks)
 
-    // Add data rows to the chart
-    for (const task of data) {
-      console.log(task.resolved)
-      dataTable.addRow([
-        task.id,
-        task.summary,
-        new Date(task.created),
-        new Date(task.resolved?task.resolved:new Date()),
-        null,
-        task.progress,
-        null,
-      ]);
-    }
-console.log( data.length)
-    const options = {
-      height: data.length*50,
-      tooltip: { isHtml: true },
-      gantt: {
-        //sortTasks: false,
-        //defaultStartDate: new Date(2022, 3, 28),
-        arrow: { color: "#55555555" },
-        palette: [
-          {
-            color: "#ccc",
-            dark: "#f98e3d",
-            light: "#eee",
-          },
-        ],
-      },
-    };
+    gantt.config.date_format = "%Y.%n.%j %H:%i:%s";
+    gantt.init("gantt", new Date(2023, 7, 1), new Date(2023, 9, 31));
+    gantt.parse({"data": filtredTasks})
+  })
+  .catch((error) => console.error("Error:", error));
+  const date = new Date(1696670354613)
+  const taskDate = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+  console.log(taskDate)
 
-    // Draw the chart with the data and options
-    chart.draw(dataTable, options);
-  }
-}
+  function formatDate(date) {
+    return `${new Date(date).getFullYear()}.${new Date(date).getMonth()}.${new Date(date).getDay()} 
+    ${new Date(date).getHours()}:${new Date(date).getMinutes()}:${new Date(date).getSeconds()}` 
+  };
